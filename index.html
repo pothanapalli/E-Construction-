@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,5 95,25 95,75 50,95 5,75 5,25' fill='none' stroke='%232B2A28' stroke-width='6'/><polyline points='50,5 50,95' stroke='%23C1602E' stroke-width='4'/></svg>" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>E Construction — Blueprint to Building</title>
     <meta name="description" content="Precision structural engineering: from blueprint to monolithic architecture." />
   </head>
@@ -122,8 +122,14 @@
           </div>
         </div>
 
+        <!-- Mobile Navigation Toggle Button -->
+        <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+          <span class="bar-line"></span>
+          <span class="bar-line"></span>
+        </button>
+
         <!-- Navigation Menu -->
-        <nav class="site-nav">
+        <nav class="site-nav" id="site-nav">
           <a href="#timeline-section" class="nav-link">
             <span class="nav-num">01</span> TIMELINE
           </a>
@@ -145,7 +151,10 @@
       <div class="stage-hud-inner">
         <div class="stage-hud-header">
           <span class="hud-tag">CHRONOLOGY</span>
-          <span class="hud-code" id="stage-code">PHASE-01/04</span>
+          <div class="hud-header-right">
+            <span class="hud-code" id="stage-code">PHASE-01/04</span>
+            <button class="hud-toggle-btn" id="hud-toggle-btn" aria-label="Toggle Stage Details">−</button>
+          </div>
         </div>
         <div class="stage-title-wrap">
           <div class="stage-title-label" id="stage-title">BLUEPRINT RECONNAISSANCE</div>

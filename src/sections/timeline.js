@@ -147,6 +147,22 @@ export function initTimeline(sceneManager) {
     });
   }
 
+  // Stage HUD Mobile Collapse / Expand Toggle
+  const hudToggleBtn = document.getElementById('hud-toggle-btn');
+  if (hudToggleBtn && stageHud) {
+    hudToggleBtn.addEventListener('click', () => {
+      const isCollapsed = stageHud.classList.toggle('is-collapsed');
+      hudToggleBtn.textContent = isCollapsed ? '+' : '−';
+      hudToggleBtn.setAttribute('aria-label', isCollapsed ? 'Expand Stage Details' : 'Collapse Stage Details');
+    });
+
+    // Default to collapsed on small mobile screens
+    if (window.innerWidth <= 768) {
+      stageHud.classList.add('is-collapsed');
+      hudToggleBtn.textContent = '+';
+    }
+  }
+
   // Floating Back to Top button
   const scrollTopBtn = document.getElementById('scroll-to-top-btn');
   if (scrollTopBtn) {

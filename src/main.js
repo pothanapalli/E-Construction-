@@ -40,12 +40,46 @@ document.addEventListener('DOMContentLoaded', () => {
   // 7. Initialize Section 7: Contact Form & Crane Hook CTA
   initContact();
 
-  // 8. Bind Smooth Navigation Links
+  // 8. Bind Mobile Navigation Drawer & Smooth Links
+  const mobileNavToggle = document.getElementById('mobile-nav-toggle');
+  const siteNav = document.getElementById('site-nav');
+
+  function closeMobileNav() {
+    if (siteNav && mobileNavToggle) {
+      siteNav.classList.remove('is-open');
+      mobileNavToggle.classList.remove('is-active');
+      mobileNavToggle.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  if (mobileNavToggle && siteNav) {
+    mobileNavToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = siteNav.classList.toggle('is-open');
+      mobileNavToggle.classList.toggle('is-active', isOpen);
+      mobileNavToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    // Close on click outside
+    document.addEventListener('click', (e) => {
+      if (siteNav.classList.contains('is-open') && !siteNav.contains(e.target) && !mobileNavToggle.contains(e.target)) {
+        closeMobileNav();
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeMobileNav();
+    });
+  }
+
+  // Bind Smooth Navigation Links & auto-close mobile nav
   document.querySelectorAll('a[href^="#"]').forEach((link) => {
     link.addEventListener('click', (e) => {
       const href = link.getAttribute('href');
       if (href && href !== '#') {
         e.preventDefault();
+        closeMobileNav();
         scrollToSection(href);
       }
     });

@@ -11,6 +11,16 @@ export function initCursor() {
 
   if (!cursorEl) return;
 
+  const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches || ('ontouchstart' in window && window.innerWidth <= 768);
+  if (isTouchDevice) {
+    cursorEl.style.display = 'none';
+    if (girderBlock) girderBlock.style.display = 'none';
+    return {
+      refreshHoverables: () => {},
+      destroy: () => {},
+    };
+  }
+
   // Real mouse targets (raw)
   let targetX = window.innerWidth / 2;
   let targetY = window.innerHeight / 2;

@@ -28,6 +28,7 @@ export class SceneManager {
     this.camTargetPos = new THREE.Vector3(38, 22, 38);
 
     // 3. WebGL Renderer with performance caps
+    this.isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       antialias: true,
@@ -36,8 +37,9 @@ export class SceneManager {
       depth: true,
     });
     this.renderer.setSize(this.width, this.height);
-    // CRITICAL: Cap devicePixelRatio at 2
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // CRITICAL: Cap devicePixelRatio at 1.5 on mobile, 2.0 on desktop
+    const initialMaxDpr = this.isMobile ? 1.5 : 2.0;
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, initialMaxDpr));
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.1;
 
@@ -68,7 +70,15 @@ export class SceneManager {
 
   bindEvents() {
     window.addEventListener('resize', this.onResize.bind(this));
-    window.addEventListener('mousemove', this.onMouseMove.bind(this));
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => this.onResize(), 200);
+    });
+
+    if (!this.isMobile) {
+      window.addEventListener('mousemove', this.onMouseMove.bind(this));
+    } else {
+      this.bindMobileSensors();
+    }
 
     // Performance requirement: Pause/reduce rendering when tab is hidden
     document.addEventListener('visibilitychange', () => {
@@ -85,13 +95,40 @@ export class SceneManager {
     });
   }
 
+  bindMobileSensors() {
+    // Gyroscope tilt support if available and permission granted
+    const handleOrientation = (e) => {
+      if (e.gamma !== null && e.beta !== null) {
+        const x = Math.max(-1, Math.min(1, e.gamma / 25));
+        const y = Math.max(-1, Math.min(1, (e.beta - 45) / 30));
+        this.mouseTarget.x = x * 0.6;
+        this.mouseTarget.y = -y * 0.4;
+      }
+    };
+
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener('deviceorientation', handleOrientation, { passive: true });
+    }
+
+    // Scroll-driven subtle tilt fallback for mobile
+    let lastScrollY = window.scrollY;
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      const scrollDelta = (scrollY - lastScrollY) * 0.003;
+      this.mouseTarget.y = Math.max(-0.5, Math.min(0.5, this.mouseTarget.y + scrollDelta));
+      lastScrollY = scrollY;
+    }, { passive: true });
+  }
+
   onResize() {
+    this.isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
     this.width = window.innerWidth;
     this.height = window.innerHeight;
     this.camera.aspect = this.width / this.height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(this.width, this.height);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const maxDpr = this.isMobile ? 1.5 : 2.0;
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxDpr));
   }
 
   onMouseMove(e) {

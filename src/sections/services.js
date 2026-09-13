@@ -56,28 +56,52 @@ export function initServices() {
     });
 
     // -------------------------------------------------------------
-    // 2. Damped 3D Tilt Effect
+    // 2. Damped 3D Tilt Effect (Desktop) / Scroll Observer (Touch)
     // -------------------------------------------------------------
+    const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches || ('ontouchstart' in window);
     const TILT_MAX = 14; // Max tilt degrees
 
-    card.addEventListener('mousemove', (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width; // 0 to 1
-      const y = (e.clientY - rect.top) / rect.height; // 0 to 1
+    if (!isTouch) {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width; // 0 to 1
+        const y = (e.clientY - rect.top) / rect.height; // 0 to 1
 
-      // Target tilt: rotating around Y based on X, rotating around X based on -Y
-      cardStates[serviceName].tiltY = (x - 0.5) * TILT_MAX * 2;
-      cardStates[serviceName].tiltX = -(y - 0.5) * TILT_MAX * 2;
+        // Target tilt: rotating around Y based on X, rotating around X based on -Y
+        cardStates[serviceName].tiltY = (x - 0.5) * TILT_MAX * 2;
+        cardStates[serviceName].tiltX = -(y - 0.5) * TILT_MAX * 2;
 
-      cardStates[serviceName].glareX = x * 100;
-      cardStates[serviceName].glareY = y * 100;
-    });
+        cardStates[serviceName].glareX = x * 100;
+        cardStates[serviceName].glareY = y * 100;
+      });
 
-    card.addEventListener('mouseleave', () => {
-      cardStates[serviceName].tiltX = 0;
-      cardStates[serviceName].tiltY = 0;
-    });
+      card.addEventListener('mouseleave', () => {
+        cardStates[serviceName].tiltX = 0;
+        cardStates[serviceName].tiltY = 0;
+      });
+    }
   });
+
+  // Mobile scroll-focus observer
+  const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches || ('ontouchstart' in window);
+  if (isTouchDevice && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const cardInner = entry.target.querySelector('.card-inner');
+        if (cardInner) {
+          if (entry.isIntersecting) {
+            cardInner.style.borderColor = 'var(--text-primary)';
+            cardInner.style.boxShadow = '0 20px 45px rgba(43, 42, 40, 0.12)';
+          } else {
+            cardInner.style.borderColor = 'var(--hairline)';
+            cardInner.style.boxShadow = '0 16px 40px rgba(43, 42, 40, 0.06)';
+          }
+        }
+      });
+    }, { threshold: 0.5 });
+
+    cards.forEach((card) => observer.observe(card));
+  }
 
   // Material Draw Functions
   function drawConcrete(ctx, w, h, time) {
@@ -195,11 +219,14 @@ export function initServices() {
       const state = cardStates[serviceName];
       if (!state) return;
 
-      // 1. Fast Damped Lerp for 3D Tilt (lerp factor 0.18)
-      state.currentTiltX += (state.tiltX - state.currentTiltX) * 0.18;
-      state.currentTiltY += (state.tiltY - state.currentTiltY) * 0.18;
-
-      card.style.transform = `perspective(1000px) rotateX(${state.currentTiltX.toFixed(2)}deg) rotateY(${state.currentTiltY.toFixed(2)}deg)`;
+      if (!isTouchDevice) {
+        // 1. Fast Damped Lerp for 3D Tilt (lerp factor 0.18)
+        state.currentTiltX += (state.tiltX - state.currentTiltX) * 0.18;
+        state.currentTiltY += (state.tiltY - state.currentTiltY) * 0.18;
+        card.style.transform = `perspective(1000px) rotateX(${state.currentTiltX.toFixed(2)}deg) rotateY(${state.currentTiltY.toFixed(2)}deg)`;
+      } else {
+        card.style.transform = 'none';
+      }
 
       // 2. Material Canvas Crossfade & Rendering (Fast & Crisp)
       const ctx = state.ctx;
