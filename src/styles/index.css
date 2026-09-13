@@ -22,30 +22,36 @@
 }
 
 :root {
-  /* Universal Typeface */
+  /* Universal Typeface: General Sans (400 & 600 only) */
   --font-main: 'General Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   
   /* Strictly TWO Font Weights */
   --fw-regular: 400;
   --fw-semibold: 600;
 
-  /* Warm Architectural Mid-Tone Palette (No Hacker Darks / No Stark Whites) */
-  --bg-dark: #E4DFD7;           /* Warm stone / concrete mid-tone */
-  --bg-surface: #EDE9E3;        /* Light warm limestone surface */
-  --bg-card: rgba(237, 233, 227, 0.88); /* Semi-transparent warm stone */
+  /* Architectural Tonal System (Strict 6-Role Palette) */
+  --bg-base: #EDEAE4;           /* Background (base): warm light concrete */
+  --bg-dark: #EDEAE4;           /* Background alias */
+  --bg-surface: #DFDBD2;        /* Surface: slightly darker stone for elevated cards/panels */
+  --bg-card: #DFDBD2;           /* Card surface */
   
-  /* Hairline Dividers & Drafting Lines */
-  --hairline: rgba(43, 42, 40, 0.14);
-  --hairline-strong: rgba(43, 42, 40, 0.28);
-  --grid-line: rgba(43, 42, 40, 0.06);
+  /* Structural Lines / Dividers */
+  --hairline: #C4BFB5;          /* Thin warm-gray hairlines for drafting grids & dividers */
+  --hairline-strong: #C4BFB5;   /* Structural line */
+  --grid-line: rgba(196, 191, 181, 0.45); /* Subtle architectural grid */
 
-  /* Single Restrained Accent Color (Max 1-2 elements per screen) */
-  --accent-terracotta: #C1602E; /* Warm terracotta */
+  /* Single Restrained Accent Color (Used Sparingly Only) */
+  --accent: #B5532E;            /* Burnt terracotta */
+  --accent-terracotta: #B5532E; /* Accent alias */
   
-  /* Deep Charcoal Typography (High Contrast, WCAG AAA) */
-  --text-primary: #2B2A28;      /* Deep warm charcoal */
-  --text-secondary: #6B6862;    /* Muted warm stone */
-  --text-muted: #8F8C85;        /* Subdued structural label */
+  /* Deep Charcoal Typography (WCAG AAA) & Muted Secondary */
+  --text-primary: #252320;      /* Deep charcoal (never pure black) */
+  --text-secondary: #6B655C;    /* Muted warm gray for captions, labels, secondary copy */
+  --text-muted: #6B655C;        /* Secondary alias */
+
+  /* Soft Ambient Shadows for Elevated Depth */
+  --shadow-surface: 0 14px 34px rgba(37, 35, 32, 0.06), 0 2px 6px rgba(37, 35, 32, 0.03);
+  --shadow-elevated: 0 20px 48px rgba(37, 35, 32, 0.08), 0 4px 12px rgba(37, 35, 32, 0.04);
 
   /* Sharp Geometry: 0px Everywhere */
   --radius-sharp: 0px;
@@ -225,7 +231,7 @@ a, button, input, textarea, select {
   z-index: 999998;
   opacity: 0;
   transform: translate(-50%, -50%) scale(0.7);
-  box-shadow: 0 8px 24px rgba(43, 42, 40, 0.12);
+  box-shadow: var(--shadow-surface);
   transition: opacity 0.2s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -296,7 +302,7 @@ a, button, input, textarea, select {
   letter-spacing: 0.2em;
   color: var(--accent-terracotta);
   padding: 4px 10px;
-  border: 1px solid rgba(193, 96, 46, 0.35);
+  border: 1px solid rgba(181, 83, 46, 0.35);
   margin-bottom: 12px;
   border-radius: 0px;
 }
@@ -610,13 +616,13 @@ a, button, input, textarea, select {
 }
 
 .nav-btn:hover {
-  background-color: var(--accent-terracotta);
-  border-color: var(--accent-terracotta);
-  color: #fff;
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-base);
 }
 
 /* ==========================================================================
-   FLOATING CONSTRUCTION PHASE HUD (Warm Stone)
+   FLOATING CONSTRUCTION PHASE HUD (Tonal Surface)
    ========================================================================== */
 .stage-hud {
   position: fixed;
@@ -624,11 +630,11 @@ a, button, input, textarea, select {
   right: 48px;
   width: 360px;
   z-index: 500;
-  background: var(--bg-card);
+  background: var(--bg-surface);
   border: 1px solid var(--hairline);
   padding: 24px;
   border-radius: 0px;
-  box-shadow: 0 16px 40px rgba(43, 42, 40, 0.08);
+  box-shadow: var(--shadow-surface);
   pointer-events: auto;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -978,12 +984,12 @@ a, button, input, textarea, select {
 
 .stage-annotation-card {
   max-width: 480px;
-  background: var(--bg-card);
+  background: var(--bg-surface);
   border: 1px solid var(--hairline);
   padding: 36px;
   border-radius: 0px;
-  box-shadow: 0 20px 45px rgba(43, 42, 40, 0.08);
-  border-left: 2px solid var(--accent-terracotta);
+  box-shadow: var(--shadow-surface);
+  border-left: 2px solid var(--accent);
 }
 
 .card-body {
@@ -1031,7 +1037,7 @@ a, button, input, textarea, select {
   letter-spacing: 0.12em;
   padding: 8px 12px;
   border-left: 2px solid var(--text-primary);
-  background: rgba(43, 42, 40, 0.04);
+  background: rgba(37, 35, 32, 0.04);
   border-radius: 0px;
 }
 
@@ -1076,19 +1082,20 @@ a, button, input, textarea, select {
 }
 
 .card-inner {
-  background: var(--bg-card);
+  background: var(--bg-surface);
   border: 1px solid var(--hairline);
   padding: 32px;
   border-radius: 0px;
   height: 100%;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 16px 40px rgba(43, 42, 40, 0.06);
-  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-surface);
+  transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .service-card:hover .card-inner {
   border-color: var(--text-primary);
+  box-shadow: var(--shadow-elevated);
 }
 
 .card-header-bar {
@@ -1101,14 +1108,14 @@ a, button, input, textarea, select {
   margin-bottom: 24px;
 }
 
-.service-num { color: var(--accent-terracotta); }
+.service-num { color: var(--accent); }
 .service-code { color: var(--text-primary); }
 
 .material-preview-box {
   position: relative;
   width: 100%;
   height: 180px;
-  background: var(--bg-surface);
+  background: var(--bg-base);
   border: 1px solid var(--hairline);
   margin-bottom: 24px;
   overflow: hidden;
@@ -1126,8 +1133,8 @@ a, button, input, textarea, select {
   inset: 0;
   pointer-events: none;
   background-image: 
-    linear-gradient(rgba(43, 42, 40, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(43, 42, 40, 0.06) 1px, transparent 1px);
+    linear-gradient(rgba(196, 191, 181, 0.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(196, 191, 181, 0.4) 1px, transparent 1px);
   background-size: 30px 30px;
 }
 
@@ -1135,7 +1142,7 @@ a, button, input, textarea, select {
   position: absolute;
   bottom: 8px;
   right: 8px;
-  background: var(--bg-card);
+  background: var(--bg-surface);
   border: 1px solid var(--hairline);
   font-size: 11px;
   font-weight: var(--fw-semibold);
@@ -1271,83 +1278,68 @@ a, button, input, textarea, select {
   width: 100vw;
   overflow: hidden;
   position: relative;
-  padding: 24px 0;
+  padding: 36px 0;
+  cursor: grab;
+  user-select: none;
+}
+
+.projects-track-wrapper.is-dragging {
+  cursor: grabbing;
+}
+
+.projects-track-wrapper.is-dragging .project-slide {
+  pointer-events: none;
 }
 
 .projects-track {
   display: flex;
-  gap: 48px;
+  gap: 40px;
   padding: 0 64px;
   width: max-content;
   will-change: transform;
 }
 
 .project-slide {
-  width: 500px;
+  width: 480px;
   flex-shrink: 0;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease, opacity 0.3s ease;
-  transform: scale(0.94);
-  filter: blur(2px);
-  opacity: 0.65;
+  transition: opacity 0.25s ease;
+  opacity: 0.72;
 }
 
 .project-slide.is-active {
-  transform: scale(1.02);
-  filter: blur(0px);
   opacity: 1;
 }
 
 .project-card-frame {
-  background: var(--bg-card);
+  background: var(--bg-surface);
   border: 1px solid var(--hairline);
   border-radius: 0px;
   overflow: hidden;
-  box-shadow: 0 20px 45px rgba(43, 42, 40, 0.08);
-  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-surface);
+  transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .project-slide.is-active .project-card-frame {
   border-color: var(--text-primary);
+  box-shadow: var(--shadow-elevated);
 }
 
 .project-blueprint-graphic {
   position: relative;
   width: 100%;
-  height: 260px;
-  background: var(--bg-surface);
+  height: 240px;
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--hairline);
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.p-bg-art {
+.project-blueprint-svg {
   width: 100%;
   height: 100%;
-  position: relative;
-}
-
-.spire-art {
-  background: linear-gradient(180deg, #D4CEC6 0%, #C6BFB6 100%);
-  background-image: repeating-linear-gradient(45deg, rgba(43, 42, 40, 0.05) 0px, rgba(43, 42, 40, 0.05) 1px, transparent 1px, transparent 16px);
-}
-
-.terminal-art {
-  background: linear-gradient(180deg, #D8D2CA 0%, #CAC4BA 100%);
-  background-image: repeating-linear-gradient(0deg, rgba(43, 42, 40, 0.05) 0px, rgba(43, 42, 40, 0.05) 1px, transparent 1px, transparent 20px);
-}
-
-.viaduct-art {
-  background: linear-gradient(180deg, #D2CCC4 0%, #C4BDB4 100%);
-  background-image: repeating-linear-gradient(90deg, rgba(43, 42, 40, 0.05) 0px, rgba(43, 42, 40, 0.05) 1px, transparent 1px, transparent 24px);
-}
-
-.monolith-art {
-  background: linear-gradient(180deg, #DAD4CC 0%, #CCC6BC 100%);
-  background-image: repeating-linear-gradient(45deg, rgba(43, 42, 40, 0.05) 0px, rgba(43, 42, 40, 0.05) 1px, transparent 1px, transparent 20px);
-}
-
-.nexus-art {
-  background: linear-gradient(180deg, #D6D0C8 0%, #C8C1B8 100%);
-  background-image: radial-gradient(circle, rgba(43, 42, 40, 0.08) 1px, transparent 1px);
-  background-size: 20px 20px;
+  display: block;
 }
 
 .p-schematic-overlay {
@@ -1361,10 +1353,11 @@ a, button, input, textarea, select {
   font-weight: var(--fw-semibold);
   letter-spacing: 0.16em;
   color: var(--text-primary);
-  background: rgba(237, 233, 227, 0.95);
-  padding: 4px 8px;
+  background: var(--bg-surface);
+  padding: 4px 10px;
   border: 1px solid var(--hairline);
   border-radius: 0px;
+  box-shadow: 0 2px 8px rgba(37, 35, 32, 0.04);
 }
 
 .project-details {
@@ -1411,7 +1404,8 @@ a, button, input, textarea, select {
   font-size: 11px;
   font-weight: var(--fw-semibold);
   border: 1px solid var(--hairline);
-  color: var(--text-primary);
+  color: var(--text-secondary);
+  background: var(--bg-base);
   padding: 4px 10px;
   letter-spacing: 0.12em;
   border-radius: 0px;
@@ -1436,11 +1430,11 @@ a, button, input, textarea, select {
 }
 
 .crane-artwork-card {
-  background: var(--bg-card);
+  background: var(--bg-surface);
   border: 1px solid var(--hairline);
   padding: 28px;
   border-radius: 0px;
-  box-shadow: 0 20px 45px rgba(43, 42, 40, 0.06);
+  box-shadow: var(--shadow-surface);
 }
 
 .scaffold-header {
@@ -1449,7 +1443,7 @@ a, button, input, textarea, select {
   gap: 10px;
   font-size: 12px;
   font-weight: var(--fw-semibold);
-  color: var(--accent-terracotta);
+  color: var(--accent);
   letter-spacing: 0.18em;
   margin-bottom: 20px;
   padding-bottom: 12px;
@@ -1460,14 +1454,14 @@ a, button, input, textarea, select {
   width: 6px;
   height: 6px;
   border-radius: 0px;
-  background-color: var(--accent-terracotta);
+  background-color: var(--accent);
 }
 
 .crane-svg-wrap {
   position: relative;
   width: 100%;
   height: 320px;
-  background: var(--bg-surface);
+  background: var(--bg-base);
   border: 1px solid var(--hairline);
   margin-bottom: 20px;
   overflow: hidden;
@@ -1500,11 +1494,11 @@ a, button, input, textarea, select {
 
 /* Right Form */
 .form-wrapper {
-  background: var(--bg-card);
+  background: var(--bg-surface);
   border: 1px solid var(--hairline);
   padding: 48px;
   border-radius: 0px;
-  box-shadow: 0 20px 45px rgba(43, 42, 40, 0.06);
+  box-shadow: var(--shadow-surface);
 }
 
 .construction-form {
@@ -1649,8 +1643,8 @@ a, button, input, textarea, select {
 }
 
 .cta-magnetic-slot.is-active {
-  border-color: var(--accent-terracotta);
-  background: rgba(193, 96, 46, 0.08);
+  border-color: var(--accent);
+  background: rgba(181, 83, 46, 0.08);
 }
 
 .slot-target-text {
@@ -1662,19 +1656,20 @@ a, button, input, textarea, select {
 
 .btn-crane-submit {
   width: 100%;
-  background: var(--accent-terracotta);
+  background: var(--accent);
   border: none;
   padding: 18px 32px;
   border-radius: 0px;
-  color: #fff;
+  color: var(--bg-base);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(193, 96, 46, 0.25);
+  box-shadow: 0 4px 16px rgba(181, 83, 46, 0.22);
   transition: background-color 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s ease;
 }
 
 .btn-crane-submit:hover {
-  background: #a84f22;
+  background: #B5532E;
+  filter: brightness(0.92);
   transform: translateY(-2px);
 }
 
@@ -1702,9 +1697,9 @@ a, button, input, textarea, select {
 .form-feedback {
   display: none;
   margin-top: 16px;
-  border: 1px solid var(--accent-terracotta);
+  border: 1px solid var(--accent);
   padding: 14px 18px;
-  color: var(--accent-terracotta);
+  color: var(--accent);
   font-size: 12px;
   font-weight: var(--fw-semibold);
   letter-spacing: 0.14em;
@@ -1817,7 +1812,7 @@ a, button, input, textarea, select {
     opacity: 0;
     visibility: hidden;
     transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, visibility 0.35s;
-    box-shadow: 0 16px 40px rgba(43, 42, 40, 0.12);
+    box-shadow: var(--shadow-elevated);
     z-index: 1000;
   }
 
@@ -1859,7 +1854,7 @@ a, button, input, textarea, select {
     max-width: calc(100vw - 32px);
     padding: 14px 18px;
     z-index: 500;
-    box-shadow: 0 10px 30px rgba(43, 42, 40, 0.12);
+    box-shadow: var(--shadow-surface);
   }
 
   .hud-toggle-btn { display: flex; }

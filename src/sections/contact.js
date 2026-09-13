@@ -54,8 +54,8 @@ export function initContact() {
               <span class="btn-text">REQUISITION TRANSMITTED // REF: #EC-9812</span>
             </span>
           `;
-          submitBtn.style.background = '#2B2A28';
-          submitBtn.style.color = '#EDE9E3';
+          submitBtn.style.background = '#252320';
+          submitBtn.style.color = '#EDEAE4';
         }
 
         // Animate vector crane trolley in left column

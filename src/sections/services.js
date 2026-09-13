@@ -91,10 +91,10 @@ export function initServices() {
         if (cardInner) {
           if (entry.isIntersecting) {
             cardInner.style.borderColor = 'var(--text-primary)';
-            cardInner.style.boxShadow = '0 20px 45px rgba(43, 42, 40, 0.12)';
+            cardInner.style.boxShadow = '0 20px 45px rgba(37, 35, 32, 0.08)';
           } else {
             cardInner.style.borderColor = 'var(--hairline)';
-            cardInner.style.boxShadow = '0 16px 40px rgba(43, 42, 40, 0.06)';
+            cardInner.style.boxShadow = '0 16px 40px rgba(37, 35, 32, 0.04)';
           }
         }
       });
@@ -103,13 +103,13 @@ export function initServices() {
     cards.forEach((card) => observer.observe(card));
   }
 
-  // Material Draw Functions
+  // Material Draw Functions (Strict Tonal System: #EDEAE4, #DFDBD2, #252320, #6B655C, #B5532E, #C4BFB5)
   function drawConcrete(ctx, w, h, time) {
-    ctx.fillStyle = '#D6D0C6';
+    ctx.fillStyle = '#DFDBD2';
     ctx.fillRect(0, 0, w, h);
 
     // Concrete formwork lines
-    ctx.strokeStyle = 'rgba(43, 42, 40, 0.12)';
+    ctx.strokeStyle = '#C4BFB5';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, h / 2);
@@ -128,14 +128,14 @@ export function initServices() {
     tieHoles.forEach(([x, y]) => {
       ctx.beginPath();
       ctx.arc(x, y, 4, 0, Math.PI * 2);
-      ctx.fillStyle = '#ABA59C';
+      ctx.fillStyle = '#6B655C';
       ctx.fill();
-      ctx.strokeStyle = 'rgba(43, 42, 40, 0.25)';
+      ctx.strokeStyle = '#C4BFB5';
       ctx.stroke();
     });
 
     // Aggregate speckles
-    ctx.fillStyle = 'rgba(43, 42, 40, 0.06)';
+    ctx.fillStyle = 'rgba(37, 35, 32, 0.05)';
     for (let i = 0; i < 30; i++) {
       const rx = (Math.sin(i * 99 + time * 0.1) * 0.5 + 0.5) * w;
       const ry = (Math.cos(i * 33 + time * 0.1) * 0.5 + 0.5) * h;
@@ -146,9 +146,9 @@ export function initServices() {
   function drawGlass(ctx, w, h, time) {
     // Tinted architectural solar glass gradient
     const grad = ctx.createLinearGradient(0, 0, w, h);
-    grad.addColorStop(0, '#CBD5DC');
-    grad.addColorStop(0.5, '#BDC8CF');
-    grad.addColorStop(1, '#ADB8BF');
+    grad.addColorStop(0, '#DFDBD2');
+    grad.addColorStop(0.5, '#EDEAE4');
+    grad.addColorStop(1, '#DFDBD2');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
 
@@ -161,12 +161,12 @@ export function initServices() {
     ctx.lineTo(sweepOffset - 120, h);
     ctx.lineTo(sweepOffset - 200, h);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.28)';
+    ctx.fillStyle = 'rgba(237, 234, 228, 0.35)';
     ctx.fill();
     ctx.restore();
 
     // Architectural mullion grid
-    ctx.strokeStyle = 'rgba(43, 42, 40, 0.2)';
+    ctx.strokeStyle = '#C4BFB5';
     ctx.lineWidth = 1.5;
     for (let x = 60; x < w; x += 60) {
       ctx.beginPath();
@@ -177,28 +177,27 @@ export function initServices() {
   }
 
   function drawSteel(ctx, w, h, time) {
-    // Deep warm charcoal steel gradient
+    // Deep charcoal steel gradient
     const grad = ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, '#3A3835');
-    grad.addColorStop(0.3, '#45433F');
-    grad.addColorStop(0.7, '#383633');
-    grad.addColorStop(1, '#2B2A28');
+    grad.addColorStop(0, '#252320');
+    grad.addColorStop(0.5, '#6B655C');
+    grad.addColorStop(1, '#252320');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
 
     // Horizontal brush strokes
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+    ctx.fillStyle = 'rgba(237, 234, 228, 0.05)';
     for (let y = 0; y < h; y += 4) {
       ctx.fillRect(0, y, w, 1);
     }
 
     // Terracotta flange accent
-    ctx.fillStyle = '#C1602E';
+    ctx.fillStyle = '#B5532E';
     ctx.fillRect(10, 10, w - 20, 3);
     ctx.fillRect(10, h - 13, w - 20, 3);
 
     // Terracotta rivets
-    ctx.fillStyle = '#C1602E';
+    ctx.fillStyle = '#B5532E';
     for (let x = 30; x < w - 20; x += 40) {
       ctx.beginPath();
       ctx.arc(x, 22, 2.5, 0, Math.PI * 2);

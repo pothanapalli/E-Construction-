@@ -10,10 +10,10 @@ export class SceneManager {
     this.width = window.innerWidth;
     this.height = window.innerHeight;
 
-    // 1. Scene & Fog Setup (Warm Stone Mid-Tone)
+    // 1. Scene & Fog Setup (Tonal Warm Light Concrete Base: #EDEAE4)
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0xE4DFD7);
-    this.scene.fog = new THREE.FogExp2(0xE4DFD7, 0.012);
+    this.scene.background = new THREE.Color(0xEDEAE4);
+    this.scene.fog = new THREE.FogExp2(0xEDEAE4, 0.012);
 
     // 2. Camera Setup
     this.camera = new THREE.PerspectiveCamera(42, this.width / this.height, 0.5, 300);
