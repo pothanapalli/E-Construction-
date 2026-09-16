@@ -435,7 +435,6 @@ export class BuildingModel {
     // 2. Main Key Light: Warm architectural sunlight (#F5EDE2)
     this.keyLight = new THREE.DirectionalLight(0xF5EDE2, 2.4);
     this.keyLight.position.set(32, 48, 28);
-    this.keyLight.castShadow = true;
     this.scene.add(this.keyLight);
 
     // 3. Soft Rim Light: Warm amber/sand highlight (#E2D5C3) angled from the back-left

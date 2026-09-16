@@ -29,6 +29,24 @@ export function initProjects() {
       return -(trackWidth - windowWidth + 96); // 96px padding buffer
     }
 
+    // High-performance $O(1)$ mathematical center focus (0 forced reflows, 0 getBoundingClientRect calls)
+    let currentActiveIndex = -1;
+    function updateCenterFocus(progress) {
+      const count = slides.length;
+      if (!count) return;
+      const activeIndex = Math.min(count - 1, Math.max(0, Math.round(progress * (count - 1))));
+      if (activeIndex === currentActiveIndex) return;
+      currentActiveIndex = activeIndex;
+
+      slides.forEach((slide, idx) => {
+        if (idx === activeIndex) {
+          slide.classList.add('is-active');
+        } else {
+          slide.classList.remove('is-active');
+        }
+      });
+    }
+
     const scrollTween = gsap.to(track, {
       x: getScrollAmount,
       ease: 'none',
@@ -44,59 +62,20 @@ export function initProjects() {
           if (progressBar) {
             progressBar.style.width = `${Math.round(self.progress * 100)}%`;
           }
-          updateCenterFocus();
+          updateCenterFocus(self.progress);
         },
       },
     });
 
     const st = scrollTween.scrollTrigger;
 
-    function updateCenterFocus() {
-      const viewportCenterX = window.innerWidth / 2;
-      let closestSlide = null;
-      let minDistance = Infinity;
-
-      slides.forEach((slide) => {
-        const rect = slide.getBoundingClientRect();
-        const slideCenterX = rect.left + rect.width / 2;
-        const dist = Math.abs(viewportCenterX - slideCenterX);
-
-        if (dist < minDistance) {
-          minDistance = dist;
-          closestSlide = slide;
-        }
-      });
-
-      slides.forEach((slide) => {
-        if (slide === closestSlide) {
-          slide.classList.add('is-active');
-        } else {
-          slide.classList.remove('is-active');
-        }
-      });
-    }
-
-    // Pointer / Mouse Drag Logic for Desktop Track
+    // Pointer / Mouse Drag Logic for Desktop Track (dynamic listeners attached on mousedown only)
     let isDown = false;
     let startX = 0;
     let startScrollY = 0;
     let hasDragged = false;
     let lastX = 0;
     let velocityX = 0;
-
-    const onMouseDown = (e) => {
-      // Only main button and avoid interactive child buttons if any
-      if (e.button !== 0) return;
-      isDown = true;
-      hasDragged = false;
-      startX = e.pageX;
-      lastX = e.pageX;
-      velocityX = 0;
-      startScrollY = window.scrollY;
-      if (trackWrapper) {
-        trackWrapper.classList.add('is-dragging');
-      }
-    };
 
     const onMouseMove = (e) => {
       if (!isDown || !st) return;
@@ -128,6 +107,9 @@ export function initProjects() {
     const onMouseUp = () => {
       if (!isDown) return;
       isDown = false;
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+
       if (trackWrapper) {
         trackWrapper.classList.remove('is-dragging');
       }
@@ -147,6 +129,21 @@ export function initProjects() {
       }
     };
 
+    const onMouseDown = (e) => {
+      if (e.button !== 0) return;
+      isDown = true;
+      hasDragged = false;
+      startX = e.pageX;
+      lastX = e.pageX;
+      velocityX = 0;
+      startScrollY = window.scrollY;
+      if (trackWrapper) {
+        trackWrapper.classList.add('is-dragging');
+      }
+      window.addEventListener('mousemove', onMouseMove, { passive: false });
+      window.addEventListener('mouseup', onMouseUp);
+    };
+
     const onClickCapture = (e) => {
       if (hasDragged) {
         e.preventDefault();
@@ -156,12 +153,10 @@ export function initProjects() {
 
     if (trackWrapper) {
       trackWrapper.addEventListener('mousedown', onMouseDown);
-      window.addEventListener('mousemove', onMouseMove);
-      window.addEventListener('mouseup', onMouseUp);
       trackWrapper.addEventListener('click', onClickCapture, true);
     }
 
-    updateCenterFocus();
+    updateCenterFocus(0);
 
     return () => {
       if (scrollTween.scrollTrigger) {
@@ -201,9 +196,5 @@ export function initProjects() {
         trackWrapper.removeEventListener('scroll', onMobileScroll);
       };
     }
-  });
-
-  window.addEventListener('resize', () => {
-    ScrollTrigger.refresh();
   });
 }

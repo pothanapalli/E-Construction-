@@ -117,15 +117,21 @@ export function initTimeline(sceneManager) {
     },
   });
 
-  // Hide Stage HUD when user scrolls into Services / Projects / Contact
+  // Hide Stage HUD and pause 3D WebGL rendering when user scrolls into Services / Projects / Contact
   ScrollTrigger.create({
     trigger: '#services-section',
     start: 'top 70%',
     onEnter: () => {
       if (stageHud) stageHud.classList.add('is-hidden');
+      if (sceneManager && typeof sceneManager.setTimelineActive === 'function') {
+        sceneManager.setTimelineActive(false);
+      }
     },
     onLeaveBack: () => {
       if (stageHud) stageHud.classList.remove('is-hidden');
+      if (sceneManager && typeof sceneManager.setTimelineActive === 'function') {
+        sceneManager.setTimelineActive(true);
+      }
     },
   });
 

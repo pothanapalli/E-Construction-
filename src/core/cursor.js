@@ -78,7 +78,44 @@ export function initCursor() {
 
   updateHoverListeners();
 
-  // RAF loop for smooth damped interpolation
+  // Cache CTA and magnetic slot coordinates to prevent layout thrashing inside RAF loop
+  let isContactNear = false;
+  let slotCenterX = 0;
+  let slotCenterY = 0;
+  let ctaCenterX = 0;
+  let ctaCenterY = 0;
+
+  function updateCtaPositions() {
+    if (!ctaZone || !magneticSlot || !isContactNear) return;
+    const ctaRect = ctaZone.getBoundingClientRect();
+    const slotRect = magneticSlot.getBoundingClientRect();
+    slotCenterX = slotRect.left + slotRect.width / 2;
+    slotCenterY = slotRect.top + slotRect.height / 2;
+    ctaCenterX = ctaRect.left + ctaRect.width / 2;
+    ctaCenterY = ctaRect.top + ctaRect.height / 2;
+  }
+
+  // Observe #contact-section visibility so geometry calculations only run when near contact
+  const contactSec = document.getElementById('contact-section');
+  if (contactSec && 'IntersectionObserver' in window) {
+    const contactObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        isContactNear = entry.isIntersecting;
+        if (isContactNear) updateCtaPositions();
+      });
+    }, { rootMargin: '300px 0px 300px 0px' });
+    contactObserver.observe(contactSec);
+  } else {
+    isContactNear = true;
+  }
+
+  window.addEventListener('scroll', () => {
+    if (isContactNear) updateCtaPositions();
+  }, { passive: true });
+
+  window.addEventListener('resize', updateCtaPositions, { passive: true });
+
+  // RAF loop for smooth damped interpolation (zero synchronous layout reads)
   function renderCursor() {
     if (isMouseInside) {
       // Primary cursor lerp
@@ -92,15 +129,9 @@ export function initCursor() {
       // Apply transform using 3D hardware acceleration
       cursorEl.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
 
-      // Check Crane Hook Attraction Physics near the CTA Button
-      if (ctaZone && magneticSlot) {
-        const ctaRect = ctaZone.getBoundingClientRect();
-        const slotRect = magneticSlot.getBoundingClientRect();
-
-        const slotCenterX = slotRect.left + slotRect.width / 2;
-        const slotCenterY = slotRect.top + slotRect.height / 2;
-
-        const distToCta = Math.hypot(targetX - (ctaRect.left + ctaRect.width / 2), targetY - (ctaRect.top + ctaRect.height / 2));
+      // Check Crane Hook Attraction Physics near the CTA Button (pure math, 0 reflows)
+      if (ctaZone && magneticSlot && isContactNear) {
+        const distToCta = Math.hypot(targetX - ctaCenterX, targetY - ctaCenterY);
         const distToSlot = Math.hypot(targetX - slotCenterX, targetY - slotCenterY);
 
         const PROXIMITY_THRESHOLD = 320;

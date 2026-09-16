@@ -65,11 +65,24 @@ export class SceneManager {
 
     // Performance & Tab Visibility state
     this.isVisible = true;
+    this.isTimelineActive = true;
     this.rafId = null;
     this.clock = new THREE.Clock();
 
     this.bindEvents();
     this.startLoop();
+  }
+
+  setTimelineActive(active) {
+    if (this.isTimelineActive === active) return;
+    this.isTimelineActive = active;
+    if (this.isTimelineActive && this.isVisible) {
+      this.clock.start();
+      this.startLoop();
+    } else if (!this.isTimelineActive && this.rafId) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
   }
 
   bindEvents() {
@@ -230,7 +243,10 @@ export class SceneManager {
     if (this.rafId) return;
 
     const render = () => {
-      if (!this.isVisible) return;
+      if (!this.isVisible || !this.isTimelineActive) {
+        this.rafId = null;
+        return;
+      }
 
       const delta = this.clock.getDelta();
       const elapsed = this.clock.getElapsedTime();

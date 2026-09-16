@@ -208,9 +208,33 @@ export function initServices() {
     }
   }
 
-  // Animation Loop for Damped Tilt and Material Rendering
+  // Initial render of all material canvases so they are immediately visible and crisp
+  function drawCardCanvas(state, timeVal) {
+    const ctx = state.ctx;
+    const canvas = state.canvas;
+    if (!ctx || !canvas) return;
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    if (state.targetMaterial === 'concrete') drawConcrete(ctx, w, h, timeVal);
+    else if (state.targetMaterial === 'glass') drawGlass(ctx, w, h, timeVal);
+    else if (state.targetMaterial === 'steel') drawSteel(ctx, w, h, timeVal);
+  }
+
+  // Draw initial state for all 3 cards
+  Object.values(cardStates).forEach((state) => drawCardCanvas(state, 0));
+
+  // Animation Loop for Damped Tilt and Material Rendering (runs ONLY when section is visible)
   let time = 0;
+  let isServicesVisible = false;
+  let servicesRafId = null;
+
   function renderServices() {
+    if (!isServicesVisible) {
+      servicesRafId = null;
+      return;
+    }
+
     time += 0.016;
 
     cards.forEach((card) => {
@@ -219,40 +243,56 @@ export function initServices() {
       if (!state) return;
 
       if (!isTouchDevice) {
-        // 1. Fast Damped Lerp for 3D Tilt (lerp factor 0.18)
-        state.currentTiltX += (state.tiltX - state.currentTiltX) * 0.18;
-        state.currentTiltY += (state.tiltY - state.currentTiltY) * 0.18;
-        card.style.transform = `perspective(1000px) rotateX(${state.currentTiltX.toFixed(2)}deg) rotateY(${state.currentTiltY.toFixed(2)}deg)`;
+        // Fast Damped Lerp for 3D Tilt - only write to DOM style if tilt is actively transitioning or non-zero
+        const diffX = state.tiltX - state.currentTiltX;
+        const diffY = state.tiltY - state.currentTiltY;
+        if (Math.abs(diffX) > 0.01 || Math.abs(diffY) > 0.01) {
+          state.currentTiltX += diffX * 0.18;
+          state.currentTiltY += diffY * 0.18;
+          card.style.transform = `perspective(1000px) rotateX(${state.currentTiltX.toFixed(2)}deg) rotateY(${state.currentTiltY.toFixed(2)}deg)`;
+        } else if (state.tiltX === 0 && state.tiltY === 0 && state.currentTiltX !== 0) {
+          state.currentTiltX = 0;
+          state.currentTiltY = 0;
+          card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+        }
       } else {
         card.style.transform = 'none';
       }
 
-      // 2. Material Canvas Crossfade & Rendering (Fast & Crisp)
-      const ctx = state.ctx;
-      const canvas = state.canvas;
-      if (ctx && canvas) {
-        const w = canvas.width;
-        const h = canvas.height;
+      // Material Canvas Crossfade & Rendering
+      // Only redraw if material is transitioning OR if glass reflection sweep is active
+      const isTransitioning = state.transitionProgress < 1;
+      const isGlass = state.targetMaterial === 'glass';
 
-        ctx.clearRect(0, 0, w, h);
-
-        if (state.transitionProgress < 1) {
-          state.transitionProgress += 0.1; // Fast crossfade
+      if (isTransitioning || isGlass) {
+        if (isTransitioning) {
+          state.transitionProgress += 0.1;
           if (state.transitionProgress >= 1) {
             state.transitionProgress = 1;
             state.currentMaterial = state.targetMaterial;
           }
         }
-
-        // Draw active material
-        if (state.targetMaterial === 'concrete') drawConcrete(ctx, w, h, time);
-        else if (state.targetMaterial === 'glass') drawGlass(ctx, w, h, time);
-        else if (state.targetMaterial === 'steel') drawSteel(ctx, w, h, time);
+        drawCardCanvas(state, time);
       }
     });
 
-    requestAnimationFrame(renderServices);
+    servicesRafId = requestAnimationFrame(renderServices);
   }
 
-  requestAnimationFrame(renderServices);
+  // Observe #services-section to pause the RAF loop when offscreen
+  const servicesSec = document.getElementById('services-section');
+  if (servicesSec && 'IntersectionObserver' in window) {
+    const servicesObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        isServicesVisible = entry.isIntersecting;
+        if (isServicesVisible && !servicesRafId) {
+          servicesRafId = requestAnimationFrame(renderServices);
+        }
+      });
+    }, { rootMargin: '150px 0px 150px 0px' });
+    servicesObserver.observe(servicesSec);
+  } else {
+    isServicesVisible = true;
+    servicesRafId = requestAnimationFrame(renderServices);
+  }
 }
