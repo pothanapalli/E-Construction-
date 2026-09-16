@@ -2,11 +2,12 @@ import * as THREE from 'three';
 
 /**
  * Procedural Architectural Building Model
- * Warm stone, cast concrete, charcoal steel, and terracotta architectural palette
+ * Dark warm charcoal, structural off-white steel, and terracotta architectural palette
  */
 export class BuildingModel {
-  constructor(scene) {
+  constructor(scene, isMobile = false) {
     this.scene = scene;
+    this.isMobile = isMobile;
     this.rootGroup = new THREE.Group();
     this.scene.add(this.rootGroup);
 
@@ -42,16 +43,51 @@ export class BuildingModel {
     this.buildFinishedDetails();
     this.setupLighting();
 
+    // Apply mobile visual weight scaling
+    this.applyMobileWeight();
+
     // Initial construction state: hero wireframe view
     this.setScrubProgress(0);
+  }
+
+  setMobileMode(isMobile) {
+    if (this.isMobile === isMobile) return;
+    this.isMobile = isMobile;
+    this.applyMobileWeight();
+  }
+
+  applyMobileWeight() {
+    const colScale = this.isMobile ? 1.45 : 1.0;
+    const slabHeightScale = this.isMobile ? 1.4 : 1.0;
+    const pilingScale = this.isMobile ? 1.35 : 1.0;
+    const coreScale = this.isMobile ? 1.3 : 1.0;
+
+    this.columns.forEach((col) => {
+      col.mesh.scale.x = colScale;
+      col.mesh.scale.z = colScale;
+    });
+
+    this.slabs.forEach((slab) => {
+      slab.mesh.scale.y = slabHeightScale;
+    });
+
+    this.pilings.forEach((item) => {
+      item.group.scale.x = pilingScale;
+      item.group.scale.z = pilingScale;
+    });
+
+    if (this.coreMesh) {
+      this.coreMesh.scale.x = coreScale;
+      this.coreMesh.scale.z = coreScale;
+    }
   }
 
   /**
    * Stage 1: Architectural Drafting Grid & Geotechnical Excavation Guides
    */
   buildBlueprintGrid() {
-    // Warm stone drafting ground grid
-    const gridHelper = new THREE.GridHelper(60, 30, 0xB5532E, 0xC4BFB5);
+    // Dark warm drafting ground grid (Accent #C1602E & Hairline #3D3936)
+    const gridHelper = new THREE.GridHelper(60, 30, 0xC1602E, 0x3D3936);
     gridHelper.position.y = -0.05;
     this.blueprintGridGroup.add(gridHelper);
 
@@ -59,23 +95,23 @@ export class BuildingModel {
     const boxGeo = new THREE.BoxGeometry(28, 8, 28);
     const boxEdges = new THREE.EdgesGeometry(boxGeo);
     const boxMat = new THREE.LineBasicMaterial({
-      color: 0xC4BFB5,
+      color: 0x3D3936,
       transparent: true,
-      opacity: 0.6,
+      opacity: 0.7,
     });
     const subgradeBox = new THREE.LineSegments(boxEdges, boxMat);
     subgradeBox.position.y = -4;
     this.blueprintGridGroup.add(subgradeBox);
     this.wireframeMaterials.push(boxMat);
 
-    // Terracotta alignment axes in center
+    // Terracotta alignment axes in center (#C1602E)
     const crossGeo = new THREE.BufferGeometry();
     const crossVerts = new Float32Array([
       -18, 0, 0,  18, 0, 0,
       0, 0, -18,  0, 0, 18,
     ]);
     crossGeo.setAttribute('position', new THREE.BufferAttribute(crossVerts, 3));
-    const crossMat = new THREE.LineBasicMaterial({ color: 0xB5532E, transparent: true, opacity: 0.8 });
+    const crossMat = new THREE.LineBasicMaterial({ color: 0xC1602E, transparent: true, opacity: 0.85 });
     const crossLines = new THREE.LineSegments(crossGeo, crossMat);
     this.blueprintGridGroup.add(crossLines);
   }
@@ -84,11 +120,11 @@ export class BuildingModel {
    * Stage 2: Deep Foundation Pilings & Ground Beams
    */
   buildFoundation() {
-    const pilingGeo = new THREE.CylinderGeometry(0.55, 0.55, 14, 8);
-    const footingGeo = new THREE.BoxGeometry(2.4, 1.8, 2.4);
+    const pilingGeo = new THREE.CylinderGeometry(0.65, 0.65, 14, 8);
+    const footingGeo = new THREE.BoxGeometry(2.6, 1.8, 2.6);
 
     const foundationMat = new THREE.MeshStandardMaterial({
-      color: 0xDFDBD2, // Surface stone tone
+      color: 0x2A2724, // Surface warm charcoal tone
       roughness: 0.85,
       metalness: 0.1,
       wireframe: false,
@@ -96,7 +132,7 @@ export class BuildingModel {
     this.solidMaterials.push(foundationMat);
 
     const wireMat = new THREE.LineBasicMaterial({
-      color: 0xC4BFB5, // Structural lines
+      color: 0x3D3936, // Structural hairline
       transparent: true,
       opacity: 0.85,
     });
@@ -136,13 +172,13 @@ export class BuildingModel {
       this.pilings.push({
         group,
         baseY: 0,
-        startY: -16 - (idx % 4) * 2, // Staggered deep start
+        startY: -16 - (idx % 4) * 2,
       });
     });
 
     // Subgrade tie beams
-    const tieGeoX = new THREE.BoxGeometry(20, 0.8, 0.8);
-    const tieGeoZ = new THREE.BoxGeometry(0.8, 0.8, 20);
+    const tieGeoX = new THREE.BoxGeometry(20, 0.9, 0.9);
+    const tieGeoZ = new THREE.BoxGeometry(0.9, 0.9, 20);
     const tieEdgesX = new THREE.EdgesGeometry(tieGeoX);
     const tieEdgesZ = new THREE.EdgesGeometry(tieGeoZ);
 
@@ -165,20 +201,20 @@ export class BuildingModel {
    * Stage 3: Superstructure (Columns, Cantilevers, Floor Slabs)
    */
   buildSuperstructure() {
-    // 1. Central Shear Core (Surface tone stone: #DFDBD2)
-    const coreGeo = new THREE.BoxGeometry(6, 28, 6);
+    // 1. Central Shear Core (Surface tone stone: #2A2724)
+    const coreGeo = new THREE.BoxGeometry(6.5, 28, 6.5);
     const coreEdges = new THREE.EdgesGeometry(coreGeo);
     const coreMat = new THREE.MeshStandardMaterial({
-      color: 0xDFDBD2,
+      color: 0x2A2724,
       roughness: 0.85,
       metalness: 0.1,
     });
     this.solidMaterials.push(coreMat);
 
     const wireMat = new THREE.LineBasicMaterial({
-      color: 0xC4BFB5,
+      color: 0x3D3936,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.85,
     });
     this.wireframeMaterials.push(wireMat);
 
@@ -188,13 +224,13 @@ export class BuildingModel {
     this.coreMesh.add(coreWire);
     this.structureGroup.add(this.coreMesh);
 
-    // 2. Structural Steel Columns (Deep charcoal: #252320)
-    const colGeo = new THREE.BoxGeometry(0.7, 26, 0.7);
+    // 2. Structural Steel Columns (High-Contrast Warm Off-White Steel: #EDEAE4)
+    const colGeo = new THREE.BoxGeometry(0.85, 26, 0.85);
     const colEdges = new THREE.EdgesGeometry(colGeo);
     const colMat = new THREE.MeshStandardMaterial({
-      color: 0x252320,
-      metalness: 0.7,
-      roughness: 0.45,
+      color: 0xEDEAE4,
+      metalness: 0.65,
+      roughness: 0.35,
     });
     this.solidMaterials.push(colMat);
 
@@ -218,7 +254,7 @@ export class BuildingModel {
       });
     });
 
-    // 3. Multi-Tier Floor Slabs (Surface stone slabs: #DFDBD2)
+    // 3. Multi-Tier Floor Slabs (Surface stone slabs: #2A2724)
     const slabLevels = [
       { y: 2,  w: 18, d: 18, cantilever: 0 },
       { y: 6,  w: 18, d: 18, cantilever: 0 },
@@ -230,14 +266,14 @@ export class BuildingModel {
     ];
 
     const slabMat = new THREE.MeshStandardMaterial({
-      color: 0xDFDBD2,
+      color: 0x2A2724,
       roughness: 0.75,
       metalness: 0.15,
     });
     this.solidMaterials.push(slabMat);
 
     slabLevels.forEach((lvl, idx) => {
-      const slabGeo = new THREE.BoxGeometry(lvl.w, 0.8, lvl.d);
+      const slabGeo = new THREE.BoxGeometry(lvl.w, 0.9, lvl.d);
       const slabEdges = new THREE.EdgesGeometry(slabGeo);
 
       const slabMesh = new THREE.Mesh(slabGeo, slabMat);
@@ -256,11 +292,11 @@ export class BuildingModel {
       });
     });
 
-    // 4. Diagonal Structural Wind-Bracing (Burnt terracotta: #B5532E)
+    // 4. Diagonal Structural Wind-Bracing (Burnt terracotta: #C1602E)
     const braceMat = new THREE.LineBasicMaterial({
-      color: 0xB5532E,
+      color: 0xC1602E,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.9,
     });
     this.wireframeMaterials.push(braceMat);
 
@@ -282,12 +318,12 @@ export class BuildingModel {
    */
   buildFacade() {
     const glassMat = new THREE.MeshPhysicalMaterial({
-      color: 0xDFDBD2, // Surface stone tint
-      metalness: 0.5,
-      roughness: 0.15,
-      transmission: 0.5,
+      color: 0x2A2724, // Surface stone tint
+      metalness: 0.4,
+      roughness: 0.2,
+      transmission: 0.35,
       transparent: true,
-      opacity: 0.2,
+      opacity: 0.3,
       reflectivity: 0.85,
       clearcoat: 1.0,
       clearcoatRoughness: 0.1,
@@ -296,8 +332,8 @@ export class BuildingModel {
     this.solidMaterials.push(glassMat);
 
     const mullionMat = new THREE.MeshStandardMaterial({
-      color: 0x252320, // Deep charcoal mullions
-      metalness: 0.7,
+      color: 0xEDEAE4, // Off-white mullions
+      metalness: 0.65,
       roughness: 0.4,
     });
     this.solidMaterials.push(mullionMat);
@@ -320,10 +356,10 @@ export class BuildingModel {
       const glassMesh = new THREE.Mesh(glassGeo, glassMat);
       panelGroup.add(glassMesh);
 
-      // Mullion Wire Edges (Structural line: #C4BFB5)
+      // Mullion Wire Edges (Structural line: #3D3936)
       const edges = new THREE.EdgesGeometry(glassGeo);
       const edgeMat = new THREE.LineBasicMaterial({
-        color: 0xC4BFB5,
+        color: 0x3D3936,
         transparent: true,
         opacity: 0.75,
       });
@@ -345,11 +381,11 @@ export class BuildingModel {
    * Stage 4: Finished Details (Rooftop Mast, Helipad, Terracotta Beacon)
    */
   buildFinishedDetails() {
-    // Rooftop Antenna Mast (Deep charcoal: #252320)
-    const mastGeo = new THREE.CylinderGeometry(0.12, 0.35, 9, 8);
+    // Rooftop Antenna Mast (Off-white steel: #EDEAE4)
+    const mastGeo = new THREE.CylinderGeometry(0.15, 0.4, 9, 8);
     const mastMat = new THREE.MeshStandardMaterial({
-      color: 0x252320,
-      metalness: 0.8,
+      color: 0xEDEAE4,
+      metalness: 0.7,
       roughness: 0.3,
     });
     this.solidMaterials.push(mastMat);
@@ -358,27 +394,27 @@ export class BuildingModel {
     mast.position.set(0, 31, 0);
     this.finishedDetailGroup.add(mast);
 
-    // Helipad ring (Burnt terracotta: #B5532E)
+    // Helipad ring (Burnt terracotta: #C1602E)
     const ringGeo = new THREE.RingGeometry(3.5, 4.2, 32);
     const ringMat = new THREE.MeshBasicMaterial({
-      color: 0xB5532E,
+      color: 0xC1602E,
       side: THREE.DoubleSide,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.9,
     });
     const ringMesh = new THREE.Mesh(ringGeo, ringMat);
     ringMesh.rotation.x = -Math.PI / 2;
     ringMesh.position.set(0, 26.5, 0);
     this.finishedDetailGroup.add(ringMesh);
 
-    // Aviation Warning Beacon (Burnt terracotta: #B5532E)
-    const beaconGeo = new THREE.SphereGeometry(0.4, 8, 8);
-    const beaconMat = new THREE.MeshBasicMaterial({ color: 0xB5532E });
+    // Aviation Warning Beacon (Burnt terracotta: #C1602E)
+    const beaconGeo = new THREE.SphereGeometry(0.45, 8, 8);
+    const beaconMat = new THREE.MeshBasicMaterial({ color: 0xC1602E });
     this.beaconMesh = new THREE.Mesh(beaconGeo, beaconMat);
     this.beaconMesh.position.set(0, 35.5, 0);
     this.finishedDetailGroup.add(this.beaconMesh);
 
-    this.beaconLight = new THREE.PointLight(0xB5532E, 2.0, 30);
+    this.beaconLight = new THREE.PointLight(0xC1602E, 2.5, 35);
     this.beaconLight.position.set(0, 35.5, 0);
     this.finishedDetailGroup.add(this.beaconLight);
 
@@ -390,8 +426,8 @@ export class BuildingModel {
    * Setup Scene Lighting with Warm Architectural Sunlight
    */
   setupLighting() {
-    // Ambient fill (warm concrete base reflection: #EDEAE4)
-    this.ambientLight = new THREE.AmbientLight(0xEDEAE4, 2.2);
+    // Ambient fill (warm off-white reflection: #EDEAE4)
+    this.ambientLight = new THREE.AmbientLight(0xEDEAE4, 1.8);
     this.scene.add(this.ambientLight);
 
     // Main key light
@@ -400,18 +436,18 @@ export class BuildingModel {
     this.keyLight.castShadow = true;
     this.scene.add(this.keyLight);
 
-    // Soft rim light (surface reflection: #DFDBD2)
-    this.rimLight = new THREE.DirectionalLight(0xDFDBD2, 1.2);
+    // Soft rim light (surface reflection: #2A2724)
+    this.rimLight = new THREE.DirectionalLight(0x2A2724, 1.2);
     this.rimLight.position.set(-25, 20, -25);
     this.scene.add(this.rimLight);
 
     // Interior Warm Atrium Glow
-    const interiorLight1 = new THREE.PointLight(0xEDEAE4, 0, 20);
+    const interiorLight1 = new THREE.PointLight(0xC1602E, 0, 20);
     interiorLight1.position.set(0, 10, 0);
     this.scene.add(interiorLight1);
     this.interiorLights.push(interiorLight1);
 
-    const interiorLight2 = new THREE.PointLight(0xDFDBD2, 0, 25);
+    const interiorLight2 = new THREE.PointLight(0x2A2724, 0, 25);
     interiorLight2.position.set(0, 20, 0);
     this.scene.add(interiorLight2);
     this.interiorLights.push(interiorLight2);
@@ -427,10 +463,12 @@ export class BuildingModel {
     // STAGE 1 -> 2: FOUNDATION (Progress 0.00 to 0.35)
     // -------------------------------------------------------------
     const foundationP = Math.min(1, Math.max(0, p / 0.35));
+    const pilingScale = this.isMobile ? 1.35 : 1.0;
     this.pilings.forEach((item, idx) => {
       const staggeredP = Math.min(1, Math.max(0, (foundationP - (idx % 4) * 0.08) / 0.7));
       const ease = 1 - Math.pow(1 - staggeredP, 3);
       item.group.position.y = item.startY + (item.baseY - item.startY) * ease;
+      item.group.scale.set(pilingScale, 1.0, pilingScale);
     });
 
     // -------------------------------------------------------------
@@ -441,19 +479,22 @@ export class BuildingModel {
     // Core height scaling
     if (this.coreMesh) {
       const coreEase = Math.min(1, structP * 1.5);
-      this.coreMesh.scale.y = Math.max(0.01, coreEase);
+      const coreScale = this.isMobile ? 1.3 : 1.0;
+      this.coreMesh.scale.set(coreScale, Math.max(0.01, coreEase), coreScale);
       this.coreMesh.position.y = 14 * coreEase;
     }
 
-    // Columns rising
+    // Columns rising with mobile thickness reinforcement
+    const colThickness = this.isMobile ? 1.45 : 1.0;
     this.columns.forEach((col) => {
       const colLocalP = Math.min(1, Math.max(0, (structP - col.delay) / (1 - col.delay)));
       const ease = 1 - Math.pow(1 - colLocalP, 3);
       col.mesh.position.y = col.startY + (col.targetY - col.startY) * ease;
-      col.mesh.scale.y = Math.max(0.01, ease);
+      col.mesh.scale.set(colThickness, Math.max(0.01, ease), colThickness);
     });
 
     // Floor slabs dropping with spring-like overshoot
+    const slabHeightScale = this.isMobile ? 1.4 : 1.0;
     this.slabs.forEach((slab) => {
       const slabLocalP = Math.min(1, Math.max(0, (structP - slab.delay) / (1 - slab.delay)));
       if (slabLocalP <= 0) {
@@ -466,7 +507,7 @@ export class BuildingModel {
         
         slab.mesh.position.y = slab.startY + (slab.targetY - slab.startY) * slabLocalP;
         const s = Math.max(0.01, Math.min(1.15, overshootP));
-        slab.mesh.scale.set(s, 1, s);
+        slab.mesh.scale.set(s, slabHeightScale, s);
       }
     });
 
@@ -514,7 +555,7 @@ export class BuildingModel {
     if (this.beaconLight && this.beaconMesh) {
       const flash = Math.sin(time * 6) > 0.3 ? 1 : 0.15;
       this.beaconLight.intensity = flash * 2.5;
-      this.beaconMesh.material.color.setHex(flash > 0.5 ? 0xB5532E : 0x6B655C);
+      this.beaconMesh.material.color.setHex(flash > 0.5 ? 0xC1602E : 0x3D3936);
     }
   }
 

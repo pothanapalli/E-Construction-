@@ -10,13 +10,18 @@ export class SceneManager {
     this.width = window.innerWidth;
     this.height = window.innerHeight;
 
-    // 1. Scene & Fog Setup (Tonal Warm Light Concrete Base: #EDEAE4)
+    // 1. Scene & Fog Setup (Dark Warm Architectural Base: #1E1C1A)
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0xEDEAE4);
-    this.scene.fog = new THREE.FogExp2(0xEDEAE4, 0.012);
+    this.scene.background = new THREE.Color(0x1E1C1A);
+    this.scene.fog = new THREE.FogExp2(0x1E1C1A, 0.012);
 
-    // 2. Camera Setup
-    this.camera = new THREE.PerspectiveCamera(42, this.width / this.height, 0.5, 300);
+    // 2. Camera Setup with Portrait-Adaptive Framing
+    this.isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
+    const initialAspect = this.width / this.height;
+    const initialFov = initialAspect < 1.0 
+      ? Math.min(62, Math.max(50, 42 / initialAspect * 0.58))
+      : 42;
+    this.camera = new THREE.PerspectiveCamera(initialFov, initialAspect, 0.5, 300);
     this.camera.position.set(38, 22, 38);
 
     // Camera target vector
@@ -28,7 +33,6 @@ export class SceneManager {
     this.camTargetPos = new THREE.Vector3(38, 22, 38);
 
     // 3. WebGL Renderer with performance caps
-    this.isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       antialias: true,
@@ -41,10 +45,10 @@ export class SceneManager {
     const initialMaxDpr = this.isMobile ? 1.5 : 2.0;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, initialMaxDpr));
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.1;
+    this.renderer.toneMappingExposure = 1.15;
 
-    // 4. Procedural Building Model
-    this.building = new BuildingModel(this.scene);
+    // 4. Procedural Building Model with mobile structural weight adaptation
+    this.building = new BuildingModel(this.scene, this.isMobile);
 
     // Mouse Tracking (lerped)
     this.mouseTarget = { x: 0, y: 0 };
@@ -124,11 +128,22 @@ export class SceneManager {
     this.isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
     this.width = window.innerWidth;
     this.height = window.innerHeight;
-    this.camera.aspect = this.width / this.height;
+    const aspect = this.width / this.height;
+    this.camera.aspect = aspect;
+    // Portrait recalculation: expand vertical FOV so the tower width fills ~65-75% of mobile screen
+    if (aspect < 1.0) {
+      this.camera.fov = Math.min(62, Math.max(50, 42 / aspect * 0.58));
+    } else {
+      this.camera.fov = 42;
+    }
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(this.width, this.height);
     const maxDpr = this.isMobile ? 1.5 : 2.0;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxDpr));
+    if (this.building && typeof this.building.setMobileMode === 'function') {
+      this.building.setMobileMode(this.isMobile);
+    }
+    this.updateCameraWaypoints();
   }
 
   onMouseMove(e) {
@@ -169,40 +184,44 @@ export class SceneManager {
 
   /**
    * Interpolates camera positions across construction phases
+   * Mobile portrait viewports use tighter distance scaling to frame the building heroically
    */
   updateCameraWaypoints() {
     const p = this.scrubProgress;
+    const aspect = this.width / this.height;
+    const isPortrait = aspect < 1.0;
+    const distScale = isPortrait ? 0.74 : 1.0;
+    const yOffset = isPortrait ? 2.5 : 0.0;
 
     if (p <= 0.25) {
       // Stage 1: Isometric Blueprint View
       const subP = p / 0.25;
       this.camTargetPos.set(
-        38 - subP * 6,
-        22 - subP * 10,
-        38 - subP * 6
+        (38 - subP * 6) * distScale,
+        (22 - subP * 10) * distScale + yOffset,
+        (38 - subP * 6) * distScale
       );
       this.target.set(0, 10 - subP * 6, 0);
     } else if (p <= 0.60) {
       // Stage 2: Low Subgrade View framing rising pilings & columns
       const subP = (p - 0.25) / 0.35;
       this.camTargetPos.set(
-        32 - subP * 4,
-        12 + subP * 12,
-        32 + subP * 4
+        (32 - subP * 4) * distScale,
+        (12 + subP * 12) * distScale + yOffset,
+        (32 + subP * 4) * distScale
       );
       this.target.set(0, 4 + subP * 8, 0);
     } else if (p <= 0.82) {
       // Stage 3: Superstructure cantilever angle
       const subP = (p - 0.60) / 0.22;
       this.camTargetPos.set(
-        28 + subP * 8,
-        24 + subP * 4,
-        36 - subP * 2
+        (28 + subP * 8) * distScale,
+        (24 + subP * 4) * distScale + yOffset,
+        (36 - subP * 2) * distScale
       );
       this.target.set(0, 12 + subP * 4, 0);
     } else {
       // Stage 4: Ready for cinematic orbit
-      // Base position for orbit
       this.target.set(0, 15, 0);
     }
   }
@@ -223,8 +242,9 @@ export class SceneManager {
       // Stage 4: Cinematic Orbit
       if (this.isCinematicOrbit) {
         this.orbitAngle += delta * 0.35; // Brisk, cinematic orbit
-        const orbitRadius = 46;
-        const orbitY = 22 + Math.sin(this.orbitAngle * 0.5) * 4;
+        const aspect = this.width / this.height;
+        const orbitRadius = aspect < 1.0 ? 35 : 46;
+        const orbitY = (22 + Math.sin(this.orbitAngle * 0.5) * 4) * (aspect < 1.0 ? 0.85 : 1.0);
 
         this.camTargetPos.set(
           Math.sin(this.orbitAngle) * orbitRadius,

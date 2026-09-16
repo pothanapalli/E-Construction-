@@ -29,29 +29,29 @@
   --fw-regular: 400;
   --fw-semibold: 600;
 
-  /* Architectural Tonal System (Strict 6-Role Palette) */
-  --bg-base: #EDEAE4;           /* Background (base): warm light concrete */
-  --bg-dark: #EDEAE4;           /* Background alias */
-  --bg-surface: #DFDBD2;        /* Surface: slightly darker stone for elevated cards/panels */
-  --bg-card: #DFDBD2;           /* Card surface */
+  /* Architectural Tonal System (Strict 6-Role Palette — Dark Warm Architectural Space) */
+  --bg-base: #1E1C1A;           /* Background (base): deep warm charcoal with slight brown undertone */
+  --bg-dark: #1E1C1A;           /* Background alias */
+  --bg-surface: #2A2724;        /* Surface: slightly lighter warm charcoal for cards & elevated panels */
+  --bg-card: #2A2724;           /* Card surface */
   
   /* Structural Lines / Dividers */
-  --hairline: #C4BFB5;          /* Thin warm-gray hairlines for drafting grids & dividers */
-  --hairline-strong: #C4BFB5;   /* Structural line */
-  --grid-line: rgba(196, 191, 181, 0.45); /* Subtle architectural grid */
+  --hairline: #3D3936;          /* Thin warm-gray hairlines for drafting grids & dividers */
+  --hairline-strong: #3D3936;   /* Structural line */
+  --grid-line: rgba(61, 57, 54, 0.45); /* Subtle architectural drafting grid */
 
   /* Single Restrained Accent Color (Used Sparingly Only) */
-  --accent: #B5532E;            /* Burnt terracotta */
-  --accent-terracotta: #B5532E; /* Accent alias */
+  --accent: #C1602E;            /* Burnt terracotta / warm orange */
+  --accent-terracotta: #C1602E; /* Accent alias */
   
-  /* Deep Charcoal Typography (WCAG AAA) & Muted Secondary */
-  --text-primary: #252320;      /* Deep charcoal (never pure black) */
-  --text-secondary: #6B655C;    /* Muted warm gray for captions, labels, secondary copy */
-  --text-muted: #6B655C;        /* Secondary alias */
+  /* Typography: Off-White Primary (WCAG AAA) & Muted Warm Gray Secondary */
+  --text-primary: #EDEAE4;      /* Warm off-white (never pure white) */
+  --text-secondary: #A39C92;    /* Muted warm gray for captions, labels, secondary copy */
+  --text-muted: #A39C92;        /* Secondary alias */
 
-  /* Soft Ambient Shadows for Elevated Depth */
-  --shadow-surface: 0 14px 34px rgba(37, 35, 32, 0.06), 0 2px 6px rgba(37, 35, 32, 0.03);
-  --shadow-elevated: 0 20px 48px rgba(37, 35, 32, 0.08), 0 4px 12px rgba(37, 35, 32, 0.04);
+  /* Soft Ambient Dark-Mode Shadows */
+  --shadow-surface: 0 14px 34px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.2);
+  --shadow-elevated: 0 20px 48px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.25);
 
   /* Sharp Geometry: 0px Everywhere */
   --radius-sharp: 0px;
@@ -302,7 +302,7 @@ a, button, input, textarea, select {
   letter-spacing: 0.2em;
   color: var(--accent-terracotta);
   padding: 4px 10px;
-  border: 1px solid rgba(181, 83, 46, 0.35);
+  border: 1px solid rgba(193, 96, 46, 0.35);
   margin-bottom: 12px;
   border-radius: 0px;
 }
@@ -1037,7 +1037,7 @@ a, button, input, textarea, select {
   letter-spacing: 0.12em;
   padding: 8px 12px;
   border-left: 2px solid var(--text-primary);
-  background: rgba(37, 35, 32, 0.04);
+  background: rgba(237, 234, 228, 0.04);
   border-radius: 0px;
 }
 
@@ -1357,7 +1357,7 @@ a, button, input, textarea, select {
   padding: 4px 10px;
   border: 1px solid var(--hairline);
   border-radius: 0px;
-  box-shadow: 0 2px 8px rgba(37, 35, 32, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .project-details {
@@ -1644,7 +1644,7 @@ a, button, input, textarea, select {
 
 .cta-magnetic-slot.is-active {
   border-color: var(--accent);
-  background: rgba(181, 83, 46, 0.08);
+  background: rgba(193, 96, 46, 0.08);
 }
 
 .slot-target-text {
@@ -1660,16 +1660,15 @@ a, button, input, textarea, select {
   border: none;
   padding: 18px 32px;
   border-radius: 0px;
-  color: var(--bg-base);
+  color: #EDEAE4;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(181, 83, 46, 0.22);
+  box-shadow: 0 4px 16px rgba(193, 96, 46, 0.22);
   transition: background-color 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s ease;
 }
 
 .btn-crane-submit:hover {
-  background: #B5532E;
-  filter: brightness(0.92);
+  filter: brightness(1.08);
   transform: translateY(-2px);
 }
 
@@ -1875,17 +1874,35 @@ a, button, input, textarea, select {
 }
 
 @media (max-width: 768px) {
-  /* Proportional Spacing (80-100px instead of 240px) */
-  .hero-section { padding: 100px 20px 50px; min-height: auto; }
-  .stage-section { min-height: auto; padding: 70px 20px; }
-  .services-section { padding: 80px 20px; }
-  .projects-pin-container { padding: 70px 0; min-height: auto; }
-  .contact-section { padding: 80px 20px 30px; }
+  /* 1. Hide Fixed Perimeter Viewport Border Lines & Marks on Mobile / Tablet */
+  .bp-border-t, .bp-border-b, .bp-border-l, .bp-border-r, .corner-mark {
+    display: none !important;
+  }
 
-  .section-desc { margin-bottom: 36px; }
-  .section-title-wrap { margin-bottom: 40px; }
+  /* 2. Standardized Spacing Scale (8 / 16 / 24 / 32 / 48 / 64 / 80px) */
+  .hero-section {
+    padding: 110px 24px 64px;
+    min-height: auto;
+  }
+  .stage-section {
+    min-height: auto;
+    padding: 80px 24px;
+  }
+  .services-section {
+    padding: 80px 24px;
+  }
+  .projects-pin-container {
+    padding: 80px 0;
+    min-height: auto;
+  }
+  .contact-section {
+    padding: 80px 24px 48px;
+  }
 
-  /* Responsive Headlines */
+  .section-desc { margin-bottom: 32px; }
+  .section-title-wrap { margin-bottom: 32px; }
+
+  /* Responsive Headlines with Zero Horizontal Overflow */
   .section-title, .hero-title {
     font-size: clamp(2.4rem, 7.5vw, 4.2rem);
     line-height: 1.02;
@@ -1893,42 +1910,57 @@ a, button, input, textarea, select {
     hyphens: auto;
   }
 
-  /* Hero Stats Stack */
+  /* Hero Stats Stack — Remove Left Border, Use Clean Top Hairline */
   .hero-stats-row {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 16px;
     padding-top: 24px;
-    margin-bottom: 40px;
+    margin-bottom: 32px;
   }
 
-  .stat-card { padding-left: 16px; }
+  .stat-card {
+    border-left: none;
+    border-top: 1px solid var(--hairline);
+    padding-left: 0;
+    padding-top: 16px;
+  }
   .stat-num { font-size: 2.4rem; }
 
-  /* Annotation Cards */
+  /* Annotation Cards — Clean 1px Hairline and Consistent Spacing */
   .stage-annotation-card {
-    padding: 24px 18px;
+    padding: 24px;
     max-width: 100%;
+    border: 1px solid var(--hairline);
   }
 
-  /* Services Grid - Single Column */
+  .stage-metrics {
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .metric-cell {
+    border-right: none;
+  }
+
+  /* Services Grid — Single Column & Consistent Gap */
   .services-grid {
     grid-template-columns: 1fr;
-    gap: 28px;
+    gap: 24px;
   }
 
   .material-preview-box { height: 160px; }
   .mat-btn {
     min-height: 44px;
-    padding: 10px 14px;
+    padding: 10px 16px;
     font-size: 11px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
   }
 
-  /* Projects Gallery Horizontal Touch Carousel */
+  /* Projects Gallery Horizontal Touch Carousel — Standardized Lateral Alignment */
   .projects-header-sticky {
-    padding: 0 20px;
+    padding: 0 24px;
     margin-bottom: 24px;
   }
 
@@ -1953,7 +1985,7 @@ a, button, input, textarea, select {
 
   .projects-track {
     gap: 16px;
-    padding: 0 20px;
+    padding: 0 24px;
     width: max-content;
   }
 
@@ -1967,29 +1999,46 @@ a, button, input, textarea, select {
   }
 
   .project-blueprint-graphic { height: 200px; }
-  .project-details { padding: 20px; }
+  .project-details { padding: 24px; }
 
   /* Contact Form & Crane Card */
   .contact-grid {
     grid-template-columns: 1fr;
-    gap: 36px;
-    margin-bottom: 60px;
+    gap: 32px;
+    margin-bottom: 48px;
   }
 
-  .form-wrapper { padding: 24px 18px; }
-  .crane-artwork-card { padding: 20px 16px; }
+  .form-wrapper {
+    padding: 24px;
+    border: 1px solid var(--hairline);
+  }
+  .crane-artwork-card {
+    padding: 24px;
+    border: 1px solid var(--hairline);
+  }
   .crane-svg-wrap { height: 220px; }
+
+  /* Remove Unintended Crane Magnetic Slot Dashed Border on Touch/Mobile */
+  .cta-magnetic-slot {
+    border: none !important;
+    padding: 0 !important;
+    margin-bottom: 0 !important;
+    background: transparent !important;
+  }
+  .slot-target-text {
+    display: none !important;
+  }
 
   /* 16px Font Size on Inputs Prevents iOS Safari Auto-Zoom */
   .input-blueprint-wrap input,
   .input-blueprint-wrap textarea {
     font-size: 16px;
-    padding: 12px 14px;
+    padding: 12px 16px;
   }
 
   .chip-box {
     min-height: 44px;
-    padding: 12px 14px;
+    padding: 12px 16px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2022,7 +2071,15 @@ a, button, input, textarea, select {
 }
 
 @media (max-width: 480px) {
+  /* Uniform 16px Lateral Padding on Phones */
   .site-header { padding: 12px 16px; }
+  .hero-section { padding: 96px 16px 48px; }
+  .stage-section { padding: 64px 16px; }
+  .services-section { padding: 64px 16px; }
+  .contact-section { padding: 64px 16px 32px; }
+  .projects-header-sticky { padding: 0 16px; }
+  .projects-track { padding: 0 16px; }
+
   .brand-logo strong { font-size: 12px; }
   .brand-logo small { font-size: 10px; }
 
@@ -2047,17 +2104,19 @@ a, button, input, textarea, select {
     gap: 16px;
   }
 
+  .stage-annotation-card,
+  .form-wrapper,
+  .crane-artwork-card,
+  .project-details {
+    padding: 16px;
+  }
+
   .stage-hud {
     bottom: 12px;
     left: 12px;
     right: 12px;
     max-width: calc(100vw - 24px);
-    padding: 12px 14px;
-  }
-
-  /* Hide fixed border frame lines on small screens to prevent visual clutter */
-  .bp-border-t, .bp-border-b, .bp-border-l, .bp-border-r, .corner-mark {
-    display: none;
+    padding: 12px 16px;
   }
 }
 
@@ -2089,6 +2148,7 @@ a, button, input, textarea, select {
   .prompt-title { font-size: 11px; }
   .prompt-sub { font-size: 10px; }
 }
+
 
 /* Touch-Device Overrides (hover: none and pointer: coarse) */
 @media (hover: none) and (pointer: coarse) {
