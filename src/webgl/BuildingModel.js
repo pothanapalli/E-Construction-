@@ -86,18 +86,18 @@ export class BuildingModel {
    * Stage 1: Architectural Drafting Grid & Geotechnical Excavation Guides
    */
   buildBlueprintGrid() {
-    // Dark warm drafting ground grid (Accent #C1602E & Hairline #3D3936)
-    const gridHelper = new THREE.GridHelper(60, 30, 0xC1602E, 0x3D3936);
+    // Ground drafting grid: Accent #C1602E & Soft warm stone hairline #8C8478 (clearly visible on #1E1C1A)
+    const gridHelper = new THREE.GridHelper(60, 30, 0xC1602E, 0x8C8478);
     gridHelper.position.y = -0.05;
     this.blueprintGridGroup.add(gridHelper);
 
-    // Sub-grade excavation boundary box (structural hairline wireframe)
+    // Sub-grade excavation boundary box (soft warm stone wireframe #8C8478)
     const boxGeo = new THREE.BoxGeometry(28, 8, 28);
     const boxEdges = new THREE.EdgesGeometry(boxGeo);
     const boxMat = new THREE.LineBasicMaterial({
-      color: 0x3D3936,
+      color: 0x8C8478,
       transparent: true,
-      opacity: 0.7,
+      opacity: 0.85,
     });
     const subgradeBox = new THREE.LineSegments(boxEdges, boxMat);
     subgradeBox.position.y = -4;
@@ -123,16 +123,18 @@ export class BuildingModel {
     const pilingGeo = new THREE.CylinderGeometry(0.65, 0.65, 14, 8);
     const footingGeo = new THREE.BoxGeometry(2.6, 1.8, 2.6);
 
+    // Soft warm stone solid tone (#9E9689) - lit and physical against #1E1C1A base
     const foundationMat = new THREE.MeshStandardMaterial({
-      color: 0x2A2724, // Surface warm charcoal tone
-      roughness: 0.85,
-      metalness: 0.1,
+      color: 0x9E9689,
+      roughness: 0.65,
+      metalness: 0.2,
       wireframe: false,
     });
     this.solidMaterials.push(foundationMat);
 
+    // Soft warm stone edge wireframe (#8C8478)
     const wireMat = new THREE.LineBasicMaterial({
-      color: 0x3D3936, // Structural hairline
+      color: 0x8C8478,
       transparent: true,
       opacity: 0.85,
     });
@@ -201,18 +203,18 @@ export class BuildingModel {
    * Stage 3: Superstructure (Columns, Cantilevers, Floor Slabs)
    */
   buildSuperstructure() {
-    // 1. Central Shear Core (Surface tone stone: #2A2724)
+    // 1. Central Shear Core (Soft warm stone tone: #9E9689)
     const coreGeo = new THREE.BoxGeometry(6.5, 28, 6.5);
     const coreEdges = new THREE.EdgesGeometry(coreGeo);
     const coreMat = new THREE.MeshStandardMaterial({
-      color: 0x2A2724,
-      roughness: 0.85,
-      metalness: 0.1,
+      color: 0x9E9689,
+      roughness: 0.65,
+      metalness: 0.2,
     });
     this.solidMaterials.push(coreMat);
 
     const wireMat = new THREE.LineBasicMaterial({
-      color: 0x3D3936,
+      color: 0x8C8478,
       transparent: true,
       opacity: 0.85,
     });
@@ -224,13 +226,13 @@ export class BuildingModel {
     this.coreMesh.add(coreWire);
     this.structureGroup.add(this.coreMesh);
 
-    // 2. Structural Steel Columns (High-Contrast Warm Off-White Steel: #EDEAE4)
+    // 2. Structural Steel Columns (Warm Sandstone / Limestone tone: #B0A896 - distinct from text #EDEAE4)
     const colGeo = new THREE.BoxGeometry(0.85, 26, 0.85);
     const colEdges = new THREE.EdgesGeometry(colGeo);
     const colMat = new THREE.MeshStandardMaterial({
-      color: 0xEDEAE4,
-      metalness: 0.65,
-      roughness: 0.35,
+      color: 0xB0A896,
+      metalness: 0.5,
+      roughness: 0.4,
     });
     this.solidMaterials.push(colMat);
 
@@ -254,7 +256,7 @@ export class BuildingModel {
       });
     });
 
-    // 3. Multi-Tier Floor Slabs (Surface stone slabs: #2A2724)
+    // 3. Multi-Tier Floor Slabs (Soft warm stone slabs: #9E9689)
     const slabLevels = [
       { y: 2,  w: 18, d: 18, cantilever: 0 },
       { y: 6,  w: 18, d: 18, cantilever: 0 },
@@ -266,9 +268,9 @@ export class BuildingModel {
     ];
 
     const slabMat = new THREE.MeshStandardMaterial({
-      color: 0x2A2724,
-      roughness: 0.75,
-      metalness: 0.15,
+      color: 0x9E9689,
+      roughness: 0.6,
+      metalness: 0.25,
     });
     this.solidMaterials.push(slabMat);
 
@@ -318,13 +320,13 @@ export class BuildingModel {
    */
   buildFacade() {
     const glassMat = new THREE.MeshPhysicalMaterial({
-      color: 0x2A2724, // Surface stone tint
-      metalness: 0.4,
+      color: 0x9E9689, // Warm architectural stone tint
+      metalness: 0.25,
       roughness: 0.2,
-      transmission: 0.35,
+      transmission: 0.45,
       transparent: true,
-      opacity: 0.3,
-      reflectivity: 0.85,
+      opacity: 0.35,
+      reflectivity: 0.9,
       clearcoat: 1.0,
       clearcoatRoughness: 0.1,
     });
@@ -332,8 +334,8 @@ export class BuildingModel {
     this.solidMaterials.push(glassMat);
 
     const mullionMat = new THREE.MeshStandardMaterial({
-      color: 0xEDEAE4, // Off-white mullions
-      metalness: 0.65,
+      color: 0xB0A896, // Warm sandstone mullions
+      metalness: 0.5,
       roughness: 0.4,
     });
     this.solidMaterials.push(mullionMat);
@@ -356,10 +358,10 @@ export class BuildingModel {
       const glassMesh = new THREE.Mesh(glassGeo, glassMat);
       panelGroup.add(glassMesh);
 
-      // Mullion Wire Edges (Structural line: #3D3936)
+      // Mullion Wire Edges (Soft warm stone line: #8C8478)
       const edges = new THREE.EdgesGeometry(glassGeo);
       const edgeMat = new THREE.LineBasicMaterial({
-        color: 0x3D3936,
+        color: 0x8C8478,
         transparent: true,
         opacity: 0.75,
       });
@@ -381,12 +383,12 @@ export class BuildingModel {
    * Stage 4: Finished Details (Rooftop Mast, Helipad, Terracotta Beacon)
    */
   buildFinishedDetails() {
-    // Rooftop Antenna Mast (Off-white steel: #EDEAE4)
+    // Rooftop Antenna Mast (Warm sand steel: #B0A896)
     const mastGeo = new THREE.CylinderGeometry(0.15, 0.4, 9, 8);
     const mastMat = new THREE.MeshStandardMaterial({
-      color: 0xEDEAE4,
-      metalness: 0.7,
-      roughness: 0.3,
+      color: 0xB0A896,
+      metalness: 0.6,
+      roughness: 0.35,
     });
     this.solidMaterials.push(mastMat);
 
@@ -426,28 +428,35 @@ export class BuildingModel {
    * Setup Scene Lighting with Warm Architectural Sunlight
    */
   setupLighting() {
-    // Ambient fill (warm off-white reflection: #EDEAE4)
-    this.ambientLight = new THREE.AmbientLight(0xEDEAE4, 1.8);
+    // 1. Soft warm ambient fill (#E6DFD5) - ensures unlit undersides retain warm tone
+    this.ambientLight = new THREE.AmbientLight(0xE6DFD5, 1.3);
     this.scene.add(this.ambientLight);
 
-    // Main key light
-    this.keyLight = new THREE.DirectionalLight(0xEDEAE4, 2.2);
-    this.keyLight.position.set(30, 45, 25);
+    // 2. Main Key Light: Warm architectural sunlight (#F5EDE2)
+    this.keyLight = new THREE.DirectionalLight(0xF5EDE2, 2.4);
+    this.keyLight.position.set(32, 48, 28);
     this.keyLight.castShadow = true;
     this.scene.add(this.keyLight);
 
-    // Soft rim light (surface reflection: #2A2724)
-    this.rimLight = new THREE.DirectionalLight(0x2A2724, 1.2);
-    this.rimLight.position.set(-25, 20, -25);
+    // 3. Soft Rim Light: Warm amber/sand highlight (#E2D5C3) angled from the back-left
+    // Catches silhouette edges of slabs, columns, and rooftop to separate from #1E1C1A background
+    this.rimLight = new THREE.DirectionalLight(0xE2D5C3, 1.9);
+    this.rimLight.position.set(-28, 22, -28);
     this.scene.add(this.rimLight);
 
-    // Interior Warm Atrium Glow
+    // 4. Upward Bounce Light: Warm ground fill (#C4B8A5)
+    // Illuminates rising foundation pilings and subgrade tie beams
+    this.bounceLight = new THREE.DirectionalLight(0xC4B8A5, 0.7);
+    this.bounceLight.position.set(10, -18, 10);
+    this.scene.add(this.bounceLight);
+
+    // 5. Interior Warm Atrium Glow
     const interiorLight1 = new THREE.PointLight(0xC1602E, 0, 20);
     interiorLight1.position.set(0, 10, 0);
     this.scene.add(interiorLight1);
     this.interiorLights.push(interiorLight1);
 
-    const interiorLight2 = new THREE.PointLight(0x2A2724, 0, 25);
+    const interiorLight2 = new THREE.PointLight(0xD4C4B0, 0, 25);
     interiorLight2.position.set(0, 20, 0);
     this.scene.add(interiorLight2);
     this.interiorLights.push(interiorLight2);
@@ -555,7 +564,7 @@ export class BuildingModel {
     if (this.beaconLight && this.beaconMesh) {
       const flash = Math.sin(time * 6) > 0.3 ? 1 : 0.15;
       this.beaconLight.intensity = flash * 2.5;
-      this.beaconMesh.material.color.setHex(flash > 0.5 ? 0xC1602E : 0x3D3936);
+      this.beaconMesh.material.color.setHex(flash > 0.5 ? 0xC1602E : 0x8C8478);
     }
   }
 
@@ -574,5 +583,10 @@ export class BuildingModel {
       }
     });
     this.scene.remove(this.rootGroup);
+    if (this.ambientLight) this.scene.remove(this.ambientLight);
+    if (this.keyLight) this.scene.remove(this.keyLight);
+    if (this.rimLight) this.scene.remove(this.rimLight);
+    if (this.bounceLight) this.scene.remove(this.bounceLight);
+    this.interiorLights.forEach((l) => this.scene.remove(l));
   }
 }

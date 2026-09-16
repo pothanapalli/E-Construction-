@@ -13,7 +13,7 @@ export class SceneManager {
     // 1. Scene & Fog Setup (Dark Warm Architectural Base: #1E1C1A)
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x1E1C1A);
-    this.scene.fog = new THREE.FogExp2(0x1E1C1A, 0.012);
+    this.scene.fog = new THREE.FogExp2(0x1E1C1A, 0.007);
 
     // 2. Camera Setup with Portrait-Adaptive Framing
     this.isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
